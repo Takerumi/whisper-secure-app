@@ -1,22 +1,31 @@
+require('dotenv').config()
+
 const express = require('express'),
   app = express(),
   mongoose = require('mongoose'),
+  encrypt = require('mongoose-encryption'),
+  secret = process.env.SECRET,
+  DB_HOST = process.env.DB_HOST,
   port = process.env.PORT || 3000
-
-require('dotenv').config()
 
 app.set('view engine', 'ejs')
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
-mongoose.connect(process.env.DB_HOST)
+mongoose.connect(DB_HOST)
 
 const userSchema = new mongoose.Schema({
-    email: String,
-    password: String,
-  }),
-  User = new mongoose.model('User', userSchema)
+  email: String,
+  password: String,
+})
+
+userSchema.plugin(encrypt, {
+  secret: secret,
+  encryptedFields: ['password'],
+})
+
+const User = new mongoose.model('User', userSchema)
 
 app.route('/').get((req, res) => {
   res.render('home')
