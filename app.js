@@ -3,7 +3,8 @@ require('dotenv').config()
 const express = require('express'),
   app = express(),
   mongoose = require('mongoose'),
-  md5 = require('md5'),
+  bcrypt = require('bcrypt'),
+  saltRounds = 10,
   DB_HOST = process.env.DB_HOST,
   port = process.env.PORT || 3000
 
@@ -32,16 +33,18 @@ app
   })
   .post((req, res) => {
     const username = req.body.username,
-      password = md5(req.body.password)
+      password = req.body.password
 
     User.findOne({ email: username }, (err, foundUser) => {
       if (!err) {
         if (foundUser) {
-          if (foundUser.password === password) {
-            res.render('secrets')
-          } else {
-            console.log('Authentication failed')
-          }
+          bcrypt.compare(password, foundUser.password, (err, result) => {
+            if (result === true) {
+              res.render('secrets')
+            } else {
+              console.log('Authentication failed')
+            }
+          })
         }
       } else {
         console.log(err)
@@ -55,16 +58,18 @@ app
     res.render('register')
   })
   .post((req, res) => {
-    const newUser = new User({
-      email: req.body.username,
-      password: md5(req.body.password),
-    })
-    newUser.save((err) => {
-      if (!err) {
-        res.render('secrets')
-      } else {
-        console.log(err)
-      }
+    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
+      const newUser = new User({
+        email: req.body.username,
+        password: hash,
+      })
+      newUser.save((err) => {
+        if (!err) {
+          res.render('secrets')
+        } else {
+          console.log(err)
+        }
+      })
     })
   })
 
