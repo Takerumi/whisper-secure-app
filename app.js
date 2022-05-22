@@ -4,7 +4,6 @@ const express = require('express'),
   app = express(),
   mongoose = require('mongoose'),
   bcrypt = require('bcrypt'),
-  saltRounds = 10,
   DB_HOST = process.env.DB_HOST,
   port = process.env.PORT || 3000
 
