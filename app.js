@@ -7,6 +7,7 @@ const express = require('express'),
   passport = require('passport'),
   passportLocalMongoose = require('passport-local-mongoose'),
   GoogleStrategy = require('passport-google-oauth20').Strategy,
+  VKontakteStrategy = require('passport-vkontakte').Strategy,
   secret = process.env.SECRET,
   DB_HOST = process.env.DB_HOST,
   port = process.env.PORT || 3000
@@ -31,6 +32,7 @@ const userSchema = new mongoose.Schema({
   email: String,
   password: String,
   googleId: String,
+  vkontakteId: String,
 })
 
 userSchema.plugin(passportLocalMongoose)
@@ -50,15 +52,32 @@ passport.deserializeUser((id, done) => {
   })
 })
 
+// OAuth Google
 passport.use(
   new GoogleStrategy(
     {
-      clientID: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: 'http://127.0.0.1:3000/auth/google/secrets',
     },
     (accessToken, refreshToken, profile, cb) => {
       User.findOrCreate({ googleId: profile.id }, (err, user) => cb(err, user))
+    }
+  )
+)
+
+// OAuth VK
+passport.use(
+  new VKontakteStrategy(
+    {
+      clientID: process.env.VK_CLIENT_ID,
+      clientSecret: process.env.VK_CLIENT_SECRET,
+      callbackURL: 'http://127.0.0.1:3000/auth/vkontakte/secrets',
+    },
+    (accessToken, refreshToken, params, profile, done) => {
+      User.findOrCreate({ vkontakteId: profile.id }, (err, user) =>
+        done(err, user)
+      )
     }
   )
 )
@@ -75,6 +94,16 @@ app.get(
   (req, res) => {
     res.redirect('/secrets')
   }
+)
+
+app.get('/auth/vkontakte', passport.authenticate('vkontakte'))
+
+app.get(
+  '/auth/vkontakte/secrets',
+  passport.authenticate('vkontakte', {
+    successRedirect: '/secrets',
+    failureRedirect: '/login',
+  })
 )
 
 app.route('/secrets').get((req, res) => {
