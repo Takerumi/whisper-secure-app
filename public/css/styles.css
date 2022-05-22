@@ -1,6 +1,6 @@
 
 body {
-  background-color: #F7ECDE;
+  background-color: #E9ECEF;
 }
 
 .centered {
@@ -13,4 +13,12 @@ body {
   font-size: 2rem;
   color: #FBF8F1;
   background-color: #54BAB9;
+}
+
+.colored-btn:hover {
+  background-color: #54BAB9;
+}
+
+.colored:hover {
+  color: #54BAB9;
 }
