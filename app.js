@@ -2,9 +2,11 @@ require('dotenv').config()
 const express = require('express'),
   app = express(),
   mongoose = require('mongoose'),
+  findOrCreate = require('mongoose-findorcreate'),
   session = require('express-session'),
   passport = require('passport'),
   passportLocalMongoose = require('passport-local-mongoose'),
+  GoogleStrategy = require('passport-google-oauth20').Strategy,
   secret = process.env.SECRET,
   DB_HOST = process.env.DB_HOST,
   port = process.env.PORT || 3000
@@ -28,20 +30,52 @@ mongoose.connect(DB_HOST)
 const userSchema = new mongoose.Schema({
   email: String,
   password: String,
+  googleId: String,
 })
 
 userSchema.plugin(passportLocalMongoose)
+userSchema.plugin(findOrCreate)
 
 const User = new mongoose.model('User', userSchema)
 
 passport.use(User.createStrategy())
 
-passport.serializeUser(User.serializeUser())
-passport.deserializeUser(User.deserializeUser())
+passport.serializeUser((user, done) => {
+  done(null, user.id)
+})
+
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err, user) => {
+    done(err, user)
+  })
+})
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
+      callbackURL: 'http://127.0.0.1:3000/auth/google/secrets',
+    },
+    (accessToken, refreshToken, profile, cb) => {
+      User.findOrCreate({ googleId: profile.id }, (err, user) => cb(err, user))
+    }
+  )
+)
 
 app.route('/').get((req, res) => {
   res.render('home')
 })
+
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }))
+
+app.get(
+  '/auth/google/secrets',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    res.redirect('/secrets')
+  }
+)
 
 app.route('/secrets').get((req, res) => {
   if (req.isAuthenticated()) {
