@@ -3,14 +3,10 @@ const express = require('express'),
   app = express(),
   mongooseConnectDB = require('./db'),
   User = require('./models/user'),
-  findOrCreate = require('mongoose-findorcreate'),
   session = require('express-session'),
   passport = require('passport'),
-  passportLocalMongoose = require('passport-local-mongoose'),
-  GoogleStrategy = require('passport-google-oauth20').Strategy,
-  VKontakteStrategy = require('passport-vkontakte').Strategy,
+  flash = require('connect-flash'),
   secret = process.env.SECRET,
-  DB_HOST = process.env.DB_HOST,
   port = process.env.PORT || 3000
 
 app.set('view engine', 'ejs')
@@ -27,49 +23,51 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.use(flash())
+
 mongooseConnectDB()
 
-passport.use(User.createStrategy())
+// passport.use(User.createStrategy())
 
-passport.serializeUser((user, done) => {
-  done(null, user.id)
-})
+// passport.serializeUser((user, done) => {
+//   done(null, user.id)
+// })
 
-passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => {
-    done(err, user)
-  })
-})
+// passport.deserializeUser((id, done) => {
+//   User.findById(id, (err, user) => {
+//     done(err, user)
+//   })
+// })
 
-// OAuth Google
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'http://127.0.0.1:3000/auth/google/secrets',
-    },
-    (accessToken, refreshToken, profile, cb) => {
-      User.findOrCreate({ googleId: profile.id }, (err, user) => cb(err, user))
-    }
-  )
-)
+// // OAuth Google
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: process.env.GOOGLE_CLIENT_ID,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//       callbackURL: 'http://127.0.0.1:3000/auth/google/secrets',
+//     },
+//     (accessToken, refreshToken, profile, cb) => {
+//       User.findOrCreate({ googleId: profile.id }, (err, user) => cb(err, user))
+//     }
+//   )
+// )
 
-// OAuth VK
-passport.use(
-  new VKontakteStrategy(
-    {
-      clientID: process.env.VK_CLIENT_ID,
-      clientSecret: process.env.VK_CLIENT_SECRET,
-      callbackURL: 'http://127.0.0.1:3000/auth/vkontakte/secrets',
-    },
-    (accessToken, refreshToken, params, profile, done) => {
-      User.findOrCreate({ vkontakteId: profile.id }, (err, user) =>
-        done(err, user)
-      )
-    }
-  )
-)
+// // OAuth VK
+// passport.use(
+//   new VKontakteStrategy(
+//     {
+//       clientID: process.env.VK_CLIENT_ID,
+//       clientSecret: process.env.VK_CLIENT_SECRET,
+//       callbackURL: 'http://127.0.0.1:3000/auth/vkontakte/secrets',
+//     },
+//     (accessToken, refreshToken, params, profile, done) => {
+//       User.findOrCreate({ vkontakteId: profile.id }, (err, user) =>
+//         done(err, user)
+//       )
+//     }
+//   )
+// )
 
 app.route('/').get((req, res) => {
   res.render('home')
@@ -136,7 +134,7 @@ app
 app
   .route('/register')
   .get((req, res) => {
-    res.render('register')
+    res.render('register', { expressFlash: req.flash('Error') })
   })
   .post((req, res) => {
     User.register(
@@ -144,13 +142,13 @@ app
       req.body.password,
       (err, user) => {
         if (err) {
-          console.log(err)
-          res.redirect('/register')
-        } else {
-          passport.authenticate('local')(req, res, () => {
-            res.redirect('/secrets')
-          })
+          req.flash('Error', 'Registration error. Please, try again')
+          return res.redirect('/register')
         }
+        // Calls next middleware to authenticate with passport
+        passport.authenticate('local')(req, res, () => {
+          res.redirect('/secrets')
+        })
       }
     )
   })

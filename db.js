@@ -1,5 +1,5 @@
 const mongoose = require('mongoose'),
-  config = require('./config/config')
+  config = require('./config/db.config')
 mongoose.Promise = global.Promise
 
 function mongooseConnectDB() {
