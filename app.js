@@ -2,15 +2,16 @@ require('dotenv').config()
 const express = require('express'),
   app = express(),
   mongoose = require('mongoose'),
-  findOrCreate = require('mongoose-findorcreate'),
-  session = require('express-session'),
-  passport = require('passport'),
-  passportLocalMongoose = require('passport-local-mongoose'),
-  GoogleStrategy = require('passport-google-oauth20').Strategy,
-  VKontakteStrategy = require('passport-vkontakte').Strategy,
-  secret = process.env.SECRET,
-  DB_HOST = process.env.DB_HOST,
-  port = process.env.PORT || 3000
+  User = require('./models/user')
+;(findOrCreate = require('mongoose-findorcreate')),
+  (session = require('express-session')),
+  (passport = require('passport')),
+  (passportLocalMongoose = require('passport-local-mongoose')),
+  (GoogleStrategy = require('passport-google-oauth20').Strategy),
+  (VKontakteStrategy = require('passport-vkontakte').Strategy),
+  (secret = process.env.SECRET),
+  (DB_HOST = process.env.DB_HOST),
+  (port = process.env.PORT || 3000)
 
 app.set('view engine', 'ejs')
 
@@ -28,18 +29,18 @@ app.use(passport.session())
 
 mongoose.connect(DB_HOST)
 
-const userSchema = new mongoose.Schema({
-  email: String,
-  password: String,
-  googleId: String,
-  vkontakteId: String,
-  secret: String,
-})
+// const userSchema = new mongoose.Schema({
+//   email: String,
+//   password: String,
+//   googleId: String,
+//   vkontakteId: String,
+//   secret: String,
+// })
 
-userSchema.plugin(passportLocalMongoose)
-userSchema.plugin(findOrCreate)
+// userSchema.plugin(passportLocalMongoose)
+// userSchema.plugin(findOrCreate)
 
-const User = new mongoose.model('User', userSchema)
+// const User = new mongoose.model('User', userSchema)
 
 passport.use(User.createStrategy())
 
