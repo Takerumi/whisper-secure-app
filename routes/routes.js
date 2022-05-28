@@ -13,6 +13,8 @@ router
 
 router.route('/secrets').get(Controller.getSecretsPage)
 
+router.get('/logout', Controller.logoutUser)
+
 // router.get(
 //   '/auth/google',
 //   passport.authenticate('google', { scope: ['profile'] })
@@ -61,16 +63,5 @@ router.route('/secrets').get(Controller.getSecretsPage)
 //       }
 //     })
 //   })
-
-// router.get('/logout', (req, res) => {
-//   req.logOut((err) => {
-//     if (err) {
-//       console.log(err)
-//     } else {
-//       console.log('Successfully logOut')
-//     }
-//   })
-//   res.redirect('/')
-// })
 
 module.exports = router

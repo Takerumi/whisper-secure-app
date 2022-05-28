@@ -1,3 +1,4 @@
+const { redirect } = require('express/lib/response')
 const User = require('../models/user'),
   passport = require('passport')
 
@@ -15,15 +16,19 @@ class Controller {
     res.render('register', { expressFlash: req.flash('Error') })
   }
   getSecretsPage(req, res) {
-    User.find({ secret: { $ne: null } }, (err, foundUsers) => {
-      if (err) {
-        req.flash('Error', err)
-      } else {
-        if (foundUsers) {
-          res.render('secrets', { usersWithSecrets: foundUsers })
+    if (req.isAuthenticated()) {
+      User.find({ secret: { $ne: null } }, (err, foundUsers) => {
+        if (err) {
+          req.flash('error', `${err.name}: ${err.message}`)
+        } else {
+          if (foundUsers) {
+            res.render('secrets', { usersWithSecrets: foundUsers })
+          }
         }
-      }
-    })
+      })
+    } else {
+      res.redirect('/login')
+    }
   }
   // Login User
   loginUser(req, res) {
@@ -34,7 +39,7 @@ class Controller {
 
     req.login(user, (err) => {
       if (err) {
-        req.flash('Error', 'Login error. Please, try again')
+        req.flash('error', `${err.name}: ${err.message}`)
       }
       passport.authenticate('local')(req, res, () => {
         res.redirect('/secrets')
@@ -48,7 +53,7 @@ class Controller {
       req.body.password,
       (err, user) => {
         if (err) {
-          req.flash('Error', 'Registration error. Please, try again')
+          req.flash('error', `${err.name}: ${err.message}`)
           return res.redirect('/register')
         }
         // Calls next middleware to authenticate with passport
@@ -57,6 +62,14 @@ class Controller {
         })
       }
     )
+  }
+  logoutUser(req, res) {
+    req.logOut((err) => {
+      if (err) {
+        req.flash('error', `${err.name}: ${err.message}`)
+      }
+    })
+    return res.redirect('/')
   }
 }
 
