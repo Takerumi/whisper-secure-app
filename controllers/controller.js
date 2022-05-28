@@ -1,4 +1,3 @@
-const { redirect } = require('express/lib/response')
 const User = require('../models/user'),
   passport = require('passport')
 
@@ -15,6 +14,15 @@ class Controller {
   getRegisterPage(req, res) {
     res.render('register', { expressFlash: req.flash('Error') })
   }
+  // Render Submit page
+  getSubmitPage(req, res) {
+    if (req.isAuthenticated()) {
+      res.render('submit')
+    } else {
+      res.redirect('/login')
+    }
+  }
+  // Render Secrets page
   getSecretsPage(req, res) {
     if (req.isAuthenticated()) {
       User.find({ secret: { $ne: null } }, (err, foundUsers) => {
@@ -63,6 +71,7 @@ class Controller {
       }
     )
   }
+  // LogOut User
   logoutUser(req, res) {
     req.logOut((err) => {
       if (err) {
@@ -70,6 +79,23 @@ class Controller {
       }
     })
     return res.redirect('/')
+  }
+  // Send new secret
+  submitSecret(req, res) {
+    const newSecret = req.body.secret
+
+    User.findById(req.user.id, (err, foundUser) => {
+      if (err) {
+        req.flash('error', `${err.name}: ${err.message}`)
+      } else {
+        if (foundUser) {
+          foundUser.secret = newSecret
+          foundUser.save(() => {
+            res.redirect('/secrets')
+          })
+        }
+      }
+    })
   }
 }
 

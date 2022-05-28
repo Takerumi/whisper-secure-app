@@ -1,5 +1,6 @@
 const express = require('express'),
   router = express.Router(),
+  passport = require('passport'),
   Controller = require('../controllers/controller')
 
 router.route('/').get(Controller.getHomePage)
@@ -15,53 +16,32 @@ router.route('/secrets').get(Controller.getSecretsPage)
 
 router.get('/logout', Controller.logoutUser)
 
-// router.get(
-//   '/auth/google',
-//   passport.authenticate('google', { scope: ['profile'] })
-// )
+router
+  .route('/submit')
+  .get(Controller.getSubmitPage)
+  .post(Controller.submitSecret)
 
-// router.get(
-//   '/auth/google/secrets',
-//   passport.authenticate('google', { failureRedirect: '/login' }),
-//   (req, res) => {
-//     res.redirect('/secrets')
-//   }
-// )
+router.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile'] })
+)
 
-// router.get('/auth/vkontakte', passport.authenticate('vkontakte'))
+router.get('/auth/vkontakte', passport.authenticate('vkontakte'))
 
-// router.get(
-//   '/auth/vkontakte/secrets',
-//   passport.authenticate('vkontakte', {
-//     successRedirect: '/secrets',
-//     failureRedirect: '/login',
-//   })
-// )
+router.get(
+  '/auth/google/secrets',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    res.redirect('/secrets')
+  }
+)
 
-// router
-//   .route('/submit')
-//   .get((req, res) => {
-//     if (req.isAuthenticated()) {
-//       res.render('submit')
-//     } else {
-//       res.redirect('/login')
-//     }
-//   })
-//   .post((req, res) => {
-//     const newSecret = req.body.secret
-
-//     User.findById(req.user.id, (err, foundUser) => {
-//       if (err) {
-//         console.log(err)
-//       } else {
-//         if (foundUser) {
-//           foundUser.secret = newSecret
-//           foundUser.save(() => {
-//             res.redirect('/secrets')
-//           })
-//         }
-//       }
-//     })
-//   })
+router.get(
+  '/auth/vkontakte/secrets',
+  passport.authenticate('vkontakte', {
+    successRedirect: '/secrets',
+    failureRedirect: '/login',
+  })
+)
 
 module.exports = router
