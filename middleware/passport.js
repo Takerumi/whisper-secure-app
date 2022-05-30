@@ -9,7 +9,7 @@ module.exports = function (passport) {
       return absoluteURI
     }
     if (process.env.NODE_ENV === 'production') {
-      const absoluteURI = 'https://bormans-secrets.herokuapp.com/'
+      const absoluteURI = 'https://bormans-secrets.herokuapp.com'
       return absoluteURI
     }
   }
