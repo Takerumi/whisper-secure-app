@@ -9,7 +9,6 @@ const express = require('express'),
   passport = require('passport'),
   flash = require('connect-flash'),
   morgan = require('morgan'),
-  secret = process.env.SECRET,
   port = process.env.PORT || 3000
 
 require('./middleware/passport')(passport)
@@ -22,7 +21,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(
   session({
-    secret: secret,
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
   })
