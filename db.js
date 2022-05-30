@@ -1,10 +1,9 @@
-const mongoose = require('mongoose'),
-  config = require('./config/db.config')
+const mongoose = require('mongoose')
 mongoose.Promise = global.Promise
 
 function mongooseConnectDB() {
   mongoose
-    .connect(config.dbURL)
+    .connect(process.env.DB_HOST)
     .then((result) =>
       console.log('Mongoose connected to ', result.connections[0].host)
     )
