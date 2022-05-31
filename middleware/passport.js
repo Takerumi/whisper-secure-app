@@ -3,17 +3,6 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy,
   User = require('../models/user')
 
 module.exports = function (passport) {
-  function detectEnvUri() {
-    if (process.env.NODE_ENV === 'development') {
-      const absoluteURI = 'http://127.0.0.1:3000'
-      return absoluteURI
-    }
-    if (process.env.NODE_ENV === 'production') {
-      const absoluteURI = 'https://bormans-secrets.herokuapp.com'
-      return absoluteURI
-    }
-  }
-
   passport.serializeUser((user, done) => {
     done(null, user.id)
   })
@@ -32,7 +21,8 @@ module.exports = function (passport) {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: `${detectEnvUri()}/auth/google/secrets`,
+        callbackURL:
+          'https://bormans-secrets.herokuapp.com/auth/google/secrets',
       },
       (accessToken, refreshToken, profile, cb) => {
         User.findOrCreate({ googleId: profile.id }, (err, user) =>
@@ -48,7 +38,8 @@ module.exports = function (passport) {
       {
         clientID: process.env.VK_CLIENT_ID,
         clientSecret: process.env.VK_CLIENT_SECRET,
-        callbackURL: `${detectEnvUri()}/auth/vkontakte/secrets`,
+        callbackURL:
+          'https://bormans-secrets.herokuapp.com/auth/vkontakte/secrets',
       },
       (accessToken, refreshToken, params, profile, done) => {
         User.findOrCreate({ vkontakteId: profile.id }, (err, user) =>
