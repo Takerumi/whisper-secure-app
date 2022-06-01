@@ -3,16 +3,6 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy,
   User = require('../models/user')
 
 module.exports = function (passport) {
-  passport.serializeUser((user, done) => {
-    done(null, user.id)
-  })
-
-  passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-      done(err, user)
-    })
-  })
-
   passport.use(User.createStrategy())
 
   // OAuth Google
@@ -42,10 +32,24 @@ module.exports = function (passport) {
           'https://bormans-secrets.herokuapp.com/auth/vkontakte/secrets',
       },
       (accessToken, refreshToken, params, profile, done) => {
-        User.findOrCreate({ vkontakteId: profile.id }, (err, user) =>
-          done(err, user)
-        )
+        User.findOrCreate({ vkontakteId: profile.id })
+          .then((user) => {
+            done(null, user)
+          })
+          .catch(done)
       }
     )
   )
+
+  passport.serializeUser((user, done) => {
+    done(null, user.id)
+  })
+
+  passport.deserializeUser((id, done) => {
+    User.findById(id)
+      .then((user) => {
+        done(null, user)
+      })
+      .catch(done)
+  })
 }
