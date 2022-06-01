@@ -29,7 +29,7 @@ module.exports = function (passport) {
         clientID: process.env.VK_CLIENT_ID,
         clientSecret: process.env.VK_CLIENT_SECRET,
         callbackURL:
-          'https://bormans-secrets.herokuapp.com//auth/vkontakte/secrets',
+          'https://bormans-secrets.herokuapp.com/auth/vkontakte/secrets',
       },
       (accessToken, refreshToken, params, profile, done) => {
         User.findOrCreate({ vkontakteId: profile.id }, (err, user) =>
