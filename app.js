@@ -22,8 +22,8 @@ app.use(cookieParser())
 app.use(
   session({
     secret: process.env.SECRET,
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
   })
 )
 app.use(passport.initialize())
@@ -31,8 +31,8 @@ app.use(passport.session())
 
 app.use(flash())
 
-app.use('/', routes)
-
 mongooseConnectDB()
+
+app.use('/', routes)
 
 app.listen(port, () => console.log(`Server started on port ${port}`))

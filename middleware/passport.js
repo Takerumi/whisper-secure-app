@@ -15,9 +15,9 @@ module.exports = function (passport) {
           'https://bormans-secrets.herokuapp.com/auth/google/secrets',
       },
       (accessToken, refreshToken, profile, cb) => {
-        User.findOrCreate({ googleId: profile.id }, (err, user) =>
-          cb(err, user)
-        )
+        User.findOrCreate({ googleId: profile.id }, (err, user) => {
+          return cb(err, user)
+        })
       }
     )
   )
@@ -29,14 +29,12 @@ module.exports = function (passport) {
         clientID: process.env.VK_CLIENT_ID,
         clientSecret: process.env.VK_CLIENT_SECRET,
         callbackURL:
-          'https://bormans-secrets.herokuapp.com/auth/vkontakte/secrets',
+          'https://bormans-secrets.herokuapp.com//auth/vkontakte/secrets',
       },
       (accessToken, refreshToken, params, profile, done) => {
-        User.findOrCreate({ vkontakteId: profile.id })
-          .then((user) => {
-            done(null, user)
-          })
-          .catch(done)
+        User.findOrCreate({ vkontakteId: profile.id }, (err, user) =>
+          done(err, user)
+        )
       }
     )
   )
@@ -47,7 +45,7 @@ module.exports = function (passport) {
 
   passport.deserializeUser((id, done) => {
     User.findById(id)
-      .then((user) => {
+      .then(function (user) {
         done(null, user)
       })
       .catch(done)
