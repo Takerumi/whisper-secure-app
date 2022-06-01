@@ -56,14 +56,14 @@ module.exports = function (passport) {
         User.findOne({ vkontakteId: profile.id }, (err, foundUser) => {
           if (!err) {
             if (foundUser) {
-              return cb(null, foundUser)
+              return done(null, foundUser)
             } else {
               const newUser = new User({
                 vkontakteId: profile.id,
               })
               newUser.save(function (err) {
                 if (!err) {
-                  return cb(null, newUser)
+                  return done(null, newUser)
                 }
               })
             }
