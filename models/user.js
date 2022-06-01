@@ -1,5 +1,4 @@
 const mongoose = require('mongoose'),
-  findOrCreate = require('mongoose-findorcreate'),
   passportLocalMongoose = require('passport-local-mongoose')
 
 const userSchema = new mongoose.Schema({

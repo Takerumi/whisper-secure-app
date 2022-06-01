@@ -15,9 +15,6 @@ module.exports = function (passport) {
           'https://bormans-secrets.herokuapp.com/auth/google/secrets',
       },
       (accessToken, refreshToken, profile, cb) => {
-        // User.findOrCreate({ googleId: profile.id }, (err, user) => {
-        //   return cb(err, user)
-        // })
         User.findOne({ googleId: profile.id }, (err, foundUser) => {
           if (!err) {
             if (foundUser) {
@@ -50,9 +47,6 @@ module.exports = function (passport) {
           'https://bormans-secrets.herokuapp.com/auth/vkontakte/secrets',
       },
       (accessToken, refreshToken, params, profile, done) => {
-        // User.findOrCreate({ vkontakteId: profile.id }, (err, user) =>
-        //   done(err, user)
-        // )
         User.findOne({ vkontakteId: profile.id }, (err, foundUser) => {
           if (!err) {
             if (foundUser) {
